@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    cmp::Ordering,
+    collections::{HashMap, HashSet},
+};
 
 advent_of_code::solution!(5);
 
@@ -31,21 +34,18 @@ pub fn part_one(input: &str) -> Option<u32> {
             let mut correct_order = true;
             for (i, n) in nums.iter().enumerate() {
                 let rules = rule_1.get(*n);
-                match rules {
-                    Some(rules) => {
-                        for later_num in rules.iter() {
-                            if nums_of_line.contains(later_num) {
-                                let pos = &nums.iter().position(|s| s == later_num);
-                                if let Some(pos) = *pos {
-                                    if pos < i {
-                                        correct_order = false;
-                                        break;
-                                    }
+                if let Some(rules) = rules {
+                    for later_num in rules.iter() {
+                        if nums_of_line.contains(later_num) {
+                            let pos = &nums.iter().position(|s| s == later_num);
+                            if let Some(pos) = *pos {
+                                if pos < i {
+                                    correct_order = false;
+                                    break;
                                 }
                             }
                         }
                     }
-                    None => (),
                 }
                 if !correct_order {
                     break;
@@ -62,23 +62,23 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let mut rules = true;
-    let mut rule_1 = HashMap::new();
+    let mut rule_section = true;
+    let mut dependencies = HashMap::new();
 
     let mut sum = 0;
     for line in input.lines() {
         if line.is_empty() {
-            rules = false;
+            rule_section = false;
             continue;
         }
-        if rules {
+        if rule_section {
             let (a, b) = line.split_once("|").unwrap();
-            rule_1
+            dependencies
                 .entry(a.to_string())
                 .or_insert(vec![])
                 .push(b.to_string());
         } else {
-            let nums = line.split(",").collect::<Vec<_>>();
+            let mut nums = line.split(",").collect::<Vec<_>>();
 
             let mut nums_of_line = HashSet::new();
             nums.iter().for_each(|s| {
@@ -89,29 +89,38 @@ pub fn part_two(input: &str) -> Option<u32> {
 
             let mut correct_order = true;
             for (i, n) in nums.iter().enumerate() {
-                let rules = rule_1.get(*n);
-                match rules {
-                    Some(rules) => {
-                        for later_num in rules.iter() {
-                            if nums_of_line.contains(later_num) {
-                                let pos = &nums.iter().position(|s| s == later_num);
-                                if let Some(pos) = *pos {
-                                    if pos < i {
-                                        correct_order = false;
-                                        break;
-                                    }
+                let rules = dependencies.get(*n);
+                if let Some(rules) = rules {
+                    for later_num in rules.iter() {
+                        if nums_of_line.contains(later_num) {
+                            let pos = &nums.iter().position(|s| s == later_num);
+                            if let Some(pos) = *pos {
+                                if pos < i {
+                                    correct_order = false;
+                                    break;
                                 }
                             }
                         }
                     }
-                    None => (),
                 }
                 if !correct_order {
                     break;
                 }
             }
             if !correct_order {
-                // TODO
+                nums.sort_unstable_by(|a, b| {
+                    if let Some(r) = dependencies.get(*a) {
+                        if r.contains(&b.to_string()) {
+                            return Ordering::Less;
+                        }
+                    }
+                    if let Some(r) = dependencies.get(*b) {
+                        if r.contains(&a.to_string()) {
+                            return Ordering::Greater;
+                        }
+                    }
+                    Ordering::Equal
+                });
 
                 let middle = nums[nums.len() / 2].parse::<u32>().unwrap();
                 sum += middle;

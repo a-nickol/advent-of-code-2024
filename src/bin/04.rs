@@ -1,6 +1,6 @@
 advent_of_code::solution!(4);
 
-fn xmas_count(i: usize, j: usize, chars: &Vec<Vec<char>>) -> u32 {
+fn xmas_count(i: usize, j: usize, chars: &[Vec<char>]) -> u32 {
     let mut c = 0;
     let rows = chars.len();
     let cols = chars[0].len();
@@ -62,41 +62,39 @@ fn xmas_count(i: usize, j: usize, chars: &Vec<Vec<char>>) -> u32 {
     c
 }
 
-fn mas_count(i: usize, j: usize, chars: &Vec<Vec<char>>) -> u32 {
+fn mas_count(i: usize, j: usize, chars: &[Vec<char>]) -> u32 {
     let mut c = 0;
     let rows = chars.len();
     let cols = chars[0].len();
 
-    if i > 0 && i + 1 < rows && j > 0 && j + 1 < cols {
-        if chars[i][j] == 'A' {
-            if chars[i + 1][j + 1] == 'M'
-                && chars[i + 1][j - 1] == 'M'
-                && chars[i - 1][j + 1] == 'S'
-                && chars[i - 1][j - 1] == 'S'
-            {
-                c += 1;
-            }
-            if chars[i - 1][j + 1] == 'M'
-                && chars[i - 1][j - 1] == 'M'
-                && chars[i + 1][j + 1] == 'S'
-                && chars[i + 1][j - 1] == 'S'
-            {
-                c += 1;
-            }
-            if chars[i + 1][j - 1] == 'M'
-                && chars[i - 1][j - 1] == 'M'
-                && chars[i + 1][j + 1] == 'S'
-                && chars[i - 1][j + 1] == 'S'
-            {
-                c += 1;
-            }
-            if chars[i + 1][j + 1] == 'M'
-                && chars[i - 1][j + 1] == 'M'
-                && chars[i + 1][j - 1] == 'S'
-                && chars[i - 1][j - 1] == 'S'
-            {
-                c += 1;
-            }
+    if i > 0 && i + 1 < rows && j > 0 && j + 1 < cols && chars[i][j] == 'A' {
+        if chars[i + 1][j + 1] == 'M'
+            && chars[i + 1][j - 1] == 'M'
+            && chars[i - 1][j + 1] == 'S'
+            && chars[i - 1][j - 1] == 'S'
+        {
+            c += 1;
+        }
+        if chars[i - 1][j + 1] == 'M'
+            && chars[i - 1][j - 1] == 'M'
+            && chars[i + 1][j + 1] == 'S'
+            && chars[i + 1][j - 1] == 'S'
+        {
+            c += 1;
+        }
+        if chars[i + 1][j - 1] == 'M'
+            && chars[i - 1][j - 1] == 'M'
+            && chars[i + 1][j + 1] == 'S'
+            && chars[i - 1][j + 1] == 'S'
+        {
+            c += 1;
+        }
+        if chars[i + 1][j + 1] == 'M'
+            && chars[i - 1][j + 1] == 'M'
+            && chars[i + 1][j - 1] == 'S'
+            && chars[i - 1][j - 1] == 'S'
+        {
+            c += 1;
         }
     }
     c
@@ -109,7 +107,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         for c in line.chars() {
             l.push(c);
         }
-        if l.len() > 0 {
+        if !l.is_empty() {
             chars.push(l);
         }
     }
@@ -132,7 +130,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         for c in line.chars() {
             l.push(c);
         }
-        if l.len() > 0 {
+        if !l.is_empty() {
             chars.push(l);
         }
     }
