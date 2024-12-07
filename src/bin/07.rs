@@ -1,35 +1,38 @@
 use std::collections::HashMap;
 
+use lazy_static::lazy_static;
 use regex::Regex;
 
 advent_of_code::solution!(7);
 
-fn eval(field: &str, wires: &HashMap<&str, &str>, values: &mut HashMap<String, u16>) -> u16 {
-    let re_d = Regex::new(r"^\d*$").unwrap();
-    let re_f = Regex::new(r"^([a-z]*)$").unwrap();
-    let re_and = Regex::new(r"^(.*) AND (.*)$").unwrap();
-    let re_or = Regex::new(r"^(.*) OR (.*)$").unwrap();
-    let re_lshift = Regex::new(r"^(.*) LSHIFT (\d*)$").unwrap();
-    let re_rshift = Regex::new(r"^(.*) RSHIFT (\d*)$").unwrap();
-    let re_not = Regex::new(r"^NOT (.*)$").unwrap();
+lazy_static! {
+    static ref RE_D: Regex = Regex::new(r"^\d*$").unwrap();
+    static ref RE_F: Regex = Regex::new(r"^([a-z]*)$").unwrap();
+    static ref RE_AND: Regex = Regex::new(r"^(.*) AND (.*)$").unwrap();
+    static ref RE_OR: Regex = Regex::new(r"^(.*) OR (.*)$").unwrap();
+    static ref RE_LSHIFT: Regex = Regex::new(r"^(.*) LSHIFT (\d*)$").unwrap();
+    static ref RE_RSHIFT: Regex = Regex::new(r"^(.*) RSHIFT (\d*)$").unwrap();
+    static ref RE_NOT: Regex = Regex::new(r"^NOT (.*)$").unwrap();
+}
 
-    if let Some(_cap) = re_d.captures(field.trim()) {
+fn eval(field: &str, wires: &HashMap<&str, &str>, values: &mut HashMap<String, u16>) -> u16 {
+    if let Some(_cap) = RE_D.captures(field.trim()) {
         field.parse::<u16>().unwrap()
-    } else if let Some(cap) = re_and.captures(field) {
+    } else if let Some(cap) = RE_AND.captures(field) {
         eval(cap.get(1).unwrap().as_str(), wires, values)
             & eval(cap.get(2).unwrap().as_str(), wires, values)
-    } else if let Some(cap) = re_or.captures(field) {
+    } else if let Some(cap) = RE_OR.captures(field) {
         eval(cap.get(1).unwrap().as_str(), wires, values)
             | eval(cap.get(2).unwrap().as_str(), wires, values)
-    } else if let Some(cap) = re_lshift.captures(field) {
+    } else if let Some(cap) = RE_LSHIFT.captures(field) {
         eval(cap.get(1).unwrap().as_str(), wires, values)
             << eval(cap.get(2).unwrap().as_str(), wires, values)
-    } else if let Some(cap) = re_rshift.captures(field) {
+    } else if let Some(cap) = RE_RSHIFT.captures(field) {
         eval(cap.get(1).unwrap().as_str(), wires, values)
             >> eval(cap.get(2).unwrap().as_str(), wires, values)
-    } else if let Some(cap) = re_not.captures(field) {
+    } else if let Some(cap) = RE_NOT.captures(field) {
         !eval(cap.get(1).unwrap().as_str(), wires, values)
-    } else if let Some(_cap) = re_f.captures(field) {
+    } else if let Some(_cap) = RE_F.captures(field) {
         if values.contains_key(field) {
             return *values.get(field).unwrap();
         }
