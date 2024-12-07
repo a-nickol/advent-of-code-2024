@@ -25,8 +25,34 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(count)
 }
 
-pub fn part_two(_input: &str) -> Option<u32> {
-    None
+pub fn part_two(input: &str) -> Option<u32> {
+    let mut count = 0;
+    for line in input.lines() {
+        let mut has_window = false;
+        let chars = line.chars().collect::<Vec<char>>();
+        let char_slice = chars.as_slice();
+        for w in char_slice.windows(3) {
+            if w[0] == w[2] {
+                has_window = true;
+            }
+        }
+        let mut has_double_pairs = false;
+        for (i, pair) in char_slice.windows(2).enumerate() {
+            let mut rest = vec![];
+            rest.append(&mut chars[..i].to_vec());
+            rest.push(' ');
+            rest.push(' ');
+            rest.append(&mut chars[i + 2..].to_vec());
+            has_double_pairs = rest.windows(2).any(|w| w == pair);
+            if has_double_pairs {
+                break;
+            }
+        }
+        if has_double_pairs && has_window {
+            count += 1;
+        }
+    }
+    Some(count)
 }
 
 #[cfg(test)]
