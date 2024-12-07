@@ -4,51 +4,65 @@ use regex::Regex;
 
 advent_of_code::solution!(7);
 
-pub fn part_one(input: &str) -> Option<u32> {
-    let mut environment: HashMap<&str, u32> = HashMap::new();
-
+fn eval(field: &str, wires: &HashMap<&str, &str>, values: &mut HashMap<String, u16>) -> u16 {
     let re_d = Regex::new(r"^\d*$").unwrap();
+    let re_f = Regex::new(r"^([a-z]*)$").unwrap();
     let re_and = Regex::new(r"^(.*) AND (.*)$").unwrap();
     let re_or = Regex::new(r"^(.*) OR (.*)$").unwrap();
     let re_lshift = Regex::new(r"^(.*) LSHIFT (\d*)$").unwrap();
     let re_rshift = Regex::new(r"^(.*) RSHIFT (\d*)$").unwrap();
     let re_not = Regex::new(r"^NOT (.*)$").unwrap();
 
-    for line in input.lines() {
-        let (left, right) = line.split_once("->").unwrap();
-        let left = left.trim();
-        let right = right.trim();
-
-        let mut value = 0;
-
-        if let Some(cap) = re_d.captures(left.trim()) {
-            value = left.parse::<u32>().unwrap();
-        } else if let Some(cap) = re_and.captures(left) {
-            value = environment.get(cap.get(1).unwrap().as_str()).unwrap()
-                & environment.get(cap.get(2).unwrap().as_str()).unwrap();
-        } else if let Some(cap) = re_or.captures(left) {
-            value = environment.get(cap.get(1).unwrap().as_str()).unwrap()
-                | environment.get(cap.get(2).unwrap().as_str()).unwrap();
-        } else if let Some(cap) = re_lshift.captures(left) {
-            value = *environment.get(cap.get(1).unwrap().as_str()).unwrap()
-                << cap.get(2).unwrap().as_str().parse::<u32>().unwrap();
-        } else if let Some(cap) = re_rshift.captures(left) {
-            value = *environment.get(cap.get(1).unwrap().as_str()).unwrap()
-                >> cap.get(2).unwrap().as_str().parse::<u32>().unwrap();
-        } else if let Some(cap) = re_not.captures(left) {
-            value = !*environment.get(cap.get(1).unwrap().as_str()).unwrap();
-        } else {
-            panic!(" - {line} - ");
+    if let Some(_cap) = re_d.captures(field.trim()) {
+        field.parse::<u16>().unwrap()
+    } else if let Some(cap) = re_and.captures(field) {
+        eval(cap.get(1).unwrap().as_str(), wires, values)
+            & eval(cap.get(2).unwrap().as_str(), wires, values)
+    } else if let Some(cap) = re_or.captures(field) {
+        eval(cap.get(1).unwrap().as_str(), wires, values)
+            | eval(cap.get(2).unwrap().as_str(), wires, values)
+    } else if let Some(cap) = re_lshift.captures(field) {
+        eval(cap.get(1).unwrap().as_str(), wires, values)
+            << eval(cap.get(2).unwrap().as_str(), wires, values)
+    } else if let Some(cap) = re_rshift.captures(field) {
+        eval(cap.get(1).unwrap().as_str(), wires, values)
+            >> eval(cap.get(2).unwrap().as_str(), wires, values)
+    } else if let Some(cap) = re_not.captures(field) {
+        !eval(cap.get(1).unwrap().as_str(), wires, values)
+    } else if let Some(_cap) = re_f.captures(field) {
+        if values.contains_key(field) {
+            return *values.get(field).unwrap();
         }
-
-        environment.insert(right, value);
+        let v = eval(wires.get(&field).unwrap(), wires, values);
+        values.insert(field.to_string(), v);
+        v
+    } else {
+        panic!("- {field} -");
     }
-
-    environment.get("a").copied()
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+pub fn part_one(input: &str) -> Option<u16> {
+    let mut wires = HashMap::new();
+    for line in input.lines() {
+        let (left, right) = line.split_once("->").unwrap();
+        wires.insert(right.trim(), left.trim());
+    }
+
+    Some(eval(wires.get("a").unwrap(), &wires, &mut HashMap::new()))
+}
+
+pub fn part_two(input: &str) -> Option<u16> {
+    let mut wires = HashMap::new();
+    for line in input.lines() {
+        let (left, right) = line.split_once("->").unwrap();
+        wires.insert(right.trim(), left.trim());
+    }
+
+    let a = eval(wires.get("a").unwrap(), &wires, &mut HashMap::new());
+
+    let a = a.to_string();
+    wires.insert("b", &a);
+    Some(eval(wires.get("a").unwrap(), &wires, &mut HashMap::new()))
 }
 
 #[cfg(test)]
@@ -64,6 +78,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(123));
     }
 }
