@@ -19,10 +19,6 @@ pub fn part_one(input: &str) -> Option<u64> {
     let mut j = disk.len() - 1;
 
     loop {
-        if i >= j {
-            break;
-        }
-
         loop {
             if i == disk.len() - 1 || disk[i].is_none() {
                 break;
@@ -40,6 +36,8 @@ pub fn part_one(input: &str) -> Option<u64> {
         if i < j && disk[i].is_none() && disk[j].is_some() {
             disk[i] = disk[j];
             disk[j] = None;
+        } else {
+            break;
         }
     }
 
