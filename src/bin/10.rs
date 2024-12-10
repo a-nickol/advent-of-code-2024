@@ -11,16 +11,16 @@ fn search_path(grid: &Grid<u32>, position: (usize, usize), c: u32) -> Vec<(usize
             return vec![position];
         } else {
             if position.0 > 0 {
-                path.append(&mut search_path(&grid, (position.0 - 1, position.1), c + 1));
+                path.append(&mut search_path(grid, (position.0 - 1, position.1), c + 1));
             }
             if position.0 + 1 < grid.rows() {
-                path.append(&mut search_path(&grid, (position.0 + 1, position.1), c + 1));
+                path.append(&mut search_path(grid, (position.0 + 1, position.1), c + 1));
             }
             if position.1 > 0 {
-                path.append(&mut search_path(&grid, (position.0, position.1 - 1), c + 1));
+                path.append(&mut search_path(grid, (position.0, position.1 - 1), c + 1));
             }
             if position.1 + 1 < grid.cols() {
-                path.append(&mut search_path(&grid, (position.0, position.1 + 1), c + 1));
+                path.append(&mut search_path(grid, (position.0, position.1 + 1), c + 1));
             }
         }
     }
@@ -34,16 +34,16 @@ fn count_path(grid: &Grid<u32>, position: (usize, usize), c: u32) -> usize {
             return 1;
         } else {
             if position.0 > 0 {
-                count += count_path(&grid, (position.0 - 1, position.1), c + 1);
+                count += count_path(grid, (position.0 - 1, position.1), c + 1);
             }
             if position.0 + 1 < grid.rows() {
-                count += count_path(&grid, (position.0 + 1, position.1), c + 1);
+                count += count_path(grid, (position.0 + 1, position.1), c + 1);
             }
             if position.1 > 0 {
-                count += count_path(&grid, (position.0, position.1 - 1), c + 1);
+                count += count_path(grid, (position.0, position.1 - 1), c + 1);
             }
             if position.1 + 1 < grid.cols() {
-                count += count_path(&grid, (position.0, position.1 + 1), c + 1);
+                count += count_path(grid, (position.0, position.1 + 1), c + 1);
             }
         }
     }
