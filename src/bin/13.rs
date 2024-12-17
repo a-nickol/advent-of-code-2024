@@ -99,22 +99,24 @@ pub fn part_two(input: &str) -> Option<i64> {
 
     let mut sum = 0;
     for (a, b, p) in tasks.clone() {
-        let mut matches = vec![];
-        for i in 0..=(p.0 / a.0) {
-            let vx = a.0 * i;
-            let d = p.0 - vx;
-            if d % b.0 == 0 {
-                let j = d / b.0;
-                if p == (a.0 * i + b.0 * j, a.1 * i + b.1 * j) {
-                    matches.push(((i, j), i * 3 + j));
-                }
-            }
+        // If determinant is zero there's no solution.
+        let det = a.0 * b.1 - a.1 * b.0;
+        if det == 0 {
+            continue;
         }
-        matches.sort_by_key(|m| m.1);
-        if !matches.is_empty() {
-            let cost = matches.first().unwrap().1;
-            sum += cost;
+
+        let mut x = b.1 * p.0 - b.0 * p.1;
+        let mut y = a.0 * p.1 - a.1 * p.0;
+
+        // Integer solutions only.
+        if x % det != 0 || y % det != 0 {
+            continue;
         }
+
+        x /= det;
+        y /= det;
+
+        sum += 3 * x + y
     }
 
     Some(sum)
@@ -133,6 +135,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(875318608908));
     }
 }
